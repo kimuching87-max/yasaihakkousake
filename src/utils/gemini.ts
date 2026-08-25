@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system';
+import { Platform } from 'react-native';
 import { getApiKey } from './storage';
 
 interface GeminiRecipeResponse {
@@ -17,10 +18,28 @@ interface GeminiSakeResponse {
 
 const convertImageToBase64 = async (uri: string): Promise<string> => {
   try {
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-    return base64;
+    if (Platform.OS === 'web') {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = (err) => {
+          console.error('FileReader error:', err);
+          reject(new Error('画像の読み込みに失敗しました。'));
+        };
+        reader.readAsDataURL(blob);
+      });
+    } else {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64;
+    }
   } catch (error) {
     console.error('Failed to convert image to base64:', error);
     throw new Error('画像の読み込みに失敗しました。');

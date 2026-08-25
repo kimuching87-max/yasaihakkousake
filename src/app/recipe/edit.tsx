@@ -120,7 +120,8 @@ export default function RecipeEditScreen() {
 
   const handleSelectImage = (type: 'dish' | 'sake') => {
     if (Platform.OS === 'web') {
-      pickImage(type, false);
+      const useCamera = window.confirm('カメラを起動しますか？（「キャンセル」を押すとライブラリから画像を選択します）');
+      pickImage(type, useCamera);
     } else {
       Alert.alert(
         '画像の選択',
