@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
+  Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import * as Linking from 'expo-linking';
@@ -80,6 +81,27 @@ export default function RecipeDetailScreen() {
       .catch((err) => console.error('An error occurred', err));
   };
 
+  const handleShare = async () => {
+    if (!recipe) return;
+
+    try {
+      let message = `🥬 野菜発酵酒ペアリングレシピ: ${recipe.title}\n`;
+      if (recipe.ingredients) {
+        message += `\n【材料】\n${recipe.ingredients}\n`;
+      }
+      if (recipe.recipeUrl) {
+        message += `\n【参考レシピURL】\n${recipe.recipeUrl}\n`;
+      }
+
+      await Share.share({
+        message: message,
+        title: recipe.title,
+      });
+    } catch (error) {
+      console.error('Sharing failed:', error);
+    }
+  };
+
   if (!recipe) return null;
 
   return (
@@ -88,12 +110,20 @@ export default function RecipeDetailScreen() {
         options={{
           title: recipe.title || 'レシピ詳細',
           headerRight: () => (
-            <TouchableOpacity
-              onPress={() => router.push(`/recipe/edit?id=${recipe.id}`)}
-              style={styles.headerEditButton}
-            >
-              <Text style={styles.headerEditText}>編集</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <TouchableOpacity
+                onPress={handleShare}
+                style={styles.headerShareButton}
+              >
+                <Text style={styles.headerShareText}>共有</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push(`/recipe/edit?id=${recipe.id}`)}
+                style={styles.headerEditButton}
+              >
+                <Text style={styles.headerEditText}>編集</Text>
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -214,6 +244,15 @@ const styles = StyleSheet.create({
   },
   subtextDark: {
     color: '#9ca3af',
+  },
+  headerShareButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  headerShareText: {
+    fontSize: 16,
+    color: '#3b82f6',
+    fontWeight: 'bold',
   },
   headerEditButton: {
     paddingHorizontal: 12,

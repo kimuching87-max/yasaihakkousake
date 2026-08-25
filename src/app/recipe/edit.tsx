@@ -78,17 +78,19 @@ export default function RecipeEditScreen() {
 
   const pickImage = async (type: 'dish' | 'sake', useCamera: boolean) => {
     try {
-      if (useCamera) {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('権限エラー', 'カメラの使用許可が必要です。');
-          return;
-        }
-      } else {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('権限エラー', '写真ライブラリへのアクセス許可が必要です。');
-          return;
+      if (Platform.OS !== 'web') {
+        if (useCamera) {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('権限エラー', 'カメラの使用許可が必要です。');
+            return;
+          }
+        } else {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('権限エラー', '写真ライブラリへのアクセス許可が必要です。');
+            return;
+          }
         }
       }
 
@@ -117,15 +119,19 @@ export default function RecipeEditScreen() {
   };
 
   const handleSelectImage = (type: 'dish' | 'sake') => {
-    Alert.alert(
-      '画像の選択',
-      '画像の取得方法を選択してください。',
-      [
-        { text: 'カメラで撮影する', onPress: () => pickImage(type, true) },
-        { text: 'ライブラリから選ぶ', onPress: () => pickImage(type, false) },
-        { text: 'キャンセル', style: 'cancel' },
-      ]
-    );
+    if (Platform.OS === 'web') {
+      pickImage(type, false);
+    } else {
+      Alert.alert(
+        '画像の選択',
+        '画像の取得方法を選択してください。',
+        [
+          { text: 'カメラで撮影する', onPress: () => pickImage(type, true) },
+          { text: 'ライブラリから選ぶ', onPress: () => pickImage(type, false) },
+          { text: 'キャンセル', style: 'cancel' },
+        ]
+      );
+    }
   };
 
   // Geminiで料理写真を解析
