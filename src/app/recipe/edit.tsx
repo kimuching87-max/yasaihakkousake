@@ -138,7 +138,11 @@ export default function RecipeEditScreen() {
   // Geminiで料理写真を解析
   const handleAnalyzeDish = async () => {
     if (!dishImage) {
-      Alert.alert('案内', '料理写真を選択または撮影してから実行してください。');
+      if (Platform.OS === 'web') {
+        window.alert('料理写真を選択または撮影してから実行してください。');
+      } else {
+        Alert.alert('案内', '料理写真を選択または撮影してから実行してください。');
+      }
       return;
     }
 
@@ -158,10 +162,18 @@ export default function RecipeEditScreen() {
         setFermTagsText(result.fermentedTags.join(', '));
       }
 
-      Alert.alert('AI推測完了', '写真から材料、作り方、タグを推測して自動入力しました。内容を確認し、適宜修正してください。');
+      if (Platform.OS === 'web') {
+        window.alert('写真から材料、作り方、タグを推測して自動入力しました。内容を確認し、適宜修正してください。');
+      } else {
+        Alert.alert('AI推測完了', '写真から材料、作り方、タグを推測して自動入力しました。内容を確認し、適宜修正してください。');
+      }
     } catch (error: any) {
       console.error('AI analysis failed:', error);
-      Alert.alert('解析失敗', error.message || 'Geminiでの画像解析に失敗しました。APIキーが正しく設定されているか確認してください。');
+      if (Platform.OS === 'web') {
+        window.alert(`解析失敗: ${error.message || 'Geminiでの画像解析に失敗しました。APIキーが正しく設定されているか確認してください。'}`);
+      } else {
+        Alert.alert('解析失敗', error.message || 'Geminiでの画像解析に失敗しました。APIキーが正しく設定されているか確認してください。');
+      }
     } finally {
       setAiAnalyzingDish(false);
     }
@@ -170,7 +182,11 @@ export default function RecipeEditScreen() {
   // Geminiで日本酒ボトルラベルを解析
   const handleAnalyzeSake = async () => {
     if (!sakeImage) {
-      Alert.alert('案内', '日本酒のボトルラベル写真を選択または撮影してから実行してください。');
+      if (Platform.OS === 'web') {
+        window.alert('日本酒のボトルラベル写真を選択または撮影してから実行してください。');
+      } else {
+        Alert.alert('案内', '日本酒のボトルラベル写真を選択または撮影してから実行してください。');
+      }
       return;
     }
 
@@ -182,10 +198,18 @@ export default function RecipeEditScreen() {
       if (result.brewery) setSakeBrewery(result.brewery);
       if (result.characteristics) setSakeNotes(result.characteristics);
 
-      Alert.alert('AI解析完了', 'ラベルから日本酒の銘柄、蔵元、味わいの特徴を読み取りました。');
+      if (Platform.OS === 'web') {
+        window.alert('ラベルから日本酒の銘柄、蔵元、味わいの特徴を読み取りました。');
+      } else {
+        Alert.alert('AI解析完了', 'ラベルから日本酒の銘柄、蔵元、味わいの特徴を読み取りました。');
+      }
     } catch (error: any) {
       console.error('AI sake analysis failed:', error);
-      Alert.alert('解析失敗', error.message || 'Geminiでのラベル解析に失敗しました。APIキーが正しく設定されているか確認してください。');
+      if (Platform.OS === 'web') {
+        window.alert(`解析失敗: ${error.message || 'Geminiでのラベル解析に失敗しました。APIキーが正しく設定されているか確認してください。'}`);
+      } else {
+        Alert.alert('解析失敗', error.message || 'Geminiでのラベル解析に失敗しました。APIキーが正しく設定されているか確認してください。');
+      }
     } finally {
       setAiAnalyzingSake(false);
     }
@@ -194,7 +218,11 @@ export default function RecipeEditScreen() {
   // 保存処理
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('入力エラー', '料理名は必須入力です。');
+      if (Platform.OS === 'web') {
+        window.alert('料理名は必須入力です。');
+      } else {
+        Alert.alert('入力エラー', '料理名は必須入力です。');
+      }
       return;
     }
 
@@ -237,11 +265,19 @@ export default function RecipeEditScreen() {
     setLoading(false);
 
     if (success) {
-      Alert.alert('保存完了', 'レシピを正常に保存しました。');
+      if (Platform.OS === 'web') {
+        window.alert('レシピを正常に保存しました。');
+      } else {
+        Alert.alert('保存完了', 'レシピを正常に保存しました。');
+      }
       // ホームに戻る
       router.replace('/');
     } else {
-      Alert.alert('エラー', '保存に失敗しました。');
+      if (Platform.OS === 'web') {
+        window.alert('保存に失敗しました。');
+      } else {
+        Alert.alert('エラー', '保存に失敗しました。');
+      }
     }
   };
 

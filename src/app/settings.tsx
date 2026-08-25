@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   useColorScheme,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
@@ -32,29 +33,46 @@ export default function SettingsScreen() {
 
   const handleSave = async () => {
     if (!apiKey.trim()) {
-      Alert.alert('警告', 'APIキーを入力してください。空欄のままではAI画像認識機能が利用できません。', [
-        {
-          text: 'キャンセル',
-          style: 'cancel',
-        },
-        {
-          text: 'このまま保存する',
-          onPress: async () => {
-            await saveApiKey('');
-            Alert.alert('保存完了', 'APIキーを削除しました。');
-            router.back();
+      if (Platform.OS === 'web') {
+        const confirmed = window.confirm('APIキーが入力されていません。空欄のまま保存してAPIキーを削除しますか？');
+        if (confirmed) {
+          await saveApiKey('');
+          window.alert('APIキーを削除しました。');
+          router.back();
+        }
+      } else {
+        Alert.alert('警告', 'APIキーを入力してください。空欄のままではAI画像認識機能が利用できません。', [
+          {
+            text: 'キャンセル',
+            style: 'cancel',
           },
-        },
-      ]);
+          {
+            text: 'このまま保存する',
+            onPress: async () => {
+              await saveApiKey('');
+              Alert.alert('保存完了', 'APIキーを削除しました。');
+              router.back();
+            },
+          },
+        ]);
+      }
       return;
     }
 
     const success = await saveApiKey(apiKey.trim());
     if (success) {
-      Alert.alert('完了', 'Gemini APIキーを正常に保存しました。');
+      if (Platform.OS === 'web') {
+        window.alert('Gemini APIキーを正常に保存しました。');
+      } else {
+        Alert.alert('完了', 'Gemini APIキーを正常に保存しました。');
+      }
       router.back();
     } else {
-      Alert.alert('エラー', '保存に失敗しました。');
+      if (Platform.OS === 'web') {
+        window.alert('保存に失敗しました。');
+      } else {
+        Alert.alert('エラー', '保存に失敗しました。');
+      }
     }
   };
 

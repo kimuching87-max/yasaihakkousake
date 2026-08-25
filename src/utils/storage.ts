@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
+import { Platform } from 'react-native';
 
 export interface Recipe {
   id: string;
@@ -24,6 +25,10 @@ const API_KEY_KEY = '@yasaihakkousake_api_key';
 
 export const saveImagePermanently = async (tempUri: string | null): Promise<string | null> => {
   if (!tempUri) return null;
+  
+  if (Platform.OS === 'web') {
+    return tempUri;
+  }
   
   // 既にアプリのドキュメントディレクトリ内にある場合はコピー不要
   const docDir = (FileSystem as any).documentDirectory;

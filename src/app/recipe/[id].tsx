@@ -9,6 +9,7 @@ import {
   Alert,
   useColorScheme,
   Share,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import * as Linking from 'expo-linking';
@@ -39,26 +40,43 @@ export default function RecipeDetailScreen() {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      '確認',
-      'このレシピを削除してもよろしいですか？',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: async () => {
-            const success = await deleteRecipe(id as string);
-            if (success) {
-              Alert.alert('削除完了', 'レシピを削除しました。');
-              router.replace('/');
-            } else {
-              Alert.alert('エラー', '削除に失敗しました。');
-            }
+    const performDelete = async () => {
+      const success = await deleteRecipe(id as string);
+      if (success) {
+        if (Platform.OS === 'web') {
+          window.alert('レシピを削除しました。');
+        } else {
+          Alert.alert('削除完了', 'レシピを削除しました。');
+        }
+        router.replace('/');
+      } else {
+        if (Platform.OS === 'web') {
+          window.alert('削除に失敗しました。');
+        } else {
+          Alert.alert('エラー', '削除に失敗しました。');
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('このレシピを削除してもよろしいですか？');
+      if (confirmed) {
+        performDelete();
+      }
+    } else {
+      Alert.alert(
+        '確認',
+        'このレシピを削除してもよろしいですか？',
+        [
+          { text: 'キャンセル', style: 'cancel' },
+          {
+            text: '削除',
+            style: 'destructive',
+            onPress: performDelete,
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const handleOpenUrl = () => {
